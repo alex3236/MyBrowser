@@ -1,0 +1,89 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="author" content="Alex3236">
+    <meta name="description" content="Badge generator for sponsor page">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link rel="icon" href="data:image/svg+xml,<svg xmlns=%22http://www.w3.org/2000/svg%22 viewBox=%220 0 100 100%22><text y=%22.9em%22 font-size=%2290%22>🌐️</text></svg>">
+    <title>MyBrowser</title>
+    <style>
+        body {
+            font-family: 'Courier New', Courier, monospace;
+        }
+    </style>
+    <script src="js/jquery-lite.min.js"></script>
+    <script src="https://cdn.bootcdn.net/ajax/libs/platform/1.3.6/platform.min.js"></script>
+    <script>
+        jQuery.load_i18n = function (lang) {
+            jQuery.ajax({
+                url: 'i18n/' + lang + '.js',
+                dataType: 'script',
+                async: false
+            });
+        }
+        function addItem(name, ...value) {
+            if (value.length == 0) {
+                $('body').append('<p class="temp">&nbsp;- ' + name + '</p>');
+            } else {
+                $('body').append('<p>&nbsp;- <strong>' + name + '</strong>: ' + value.join(', ') + '</p>');
+            }
+        }
+        function addTitle(title) {
+            $('body').append('<h3>' + title + '</h3>');
+        }
+        for (i in navigator.languages) {
+            lang = navigator.languages[i];
+            switch (lang) {
+                case 'zh': i18n = 'zh'; break;
+                case 'zh-CN': i18n = 'zh'; break;
+                default: i18n = 'en'; break;
+            }
+            if (i18n != 'en') { break }
+        }
+        const width  = window.innerWidth || document.documentElement.clientWidth || document.body.clientWidth;
+        const height = window.innerHeight|| document.documentElement.clientHeight|| document.body.clientHeight;
+        $.load_i18n(i18n);
+        // var _ = window._
+        
+    </script>
+</head>
+
+<body>
+    <h2><script>document.write(_.title.project)</script></h2>
+    <p><script>document.write(_.para[0])</script></p>
+    <p><script>document.write(_.para[1])</script></p>
+    [<a id="define" href="define-zh.html"><script>document.write(_.link.define)</script></a>]
+    [<a href="define-zh.html"><script>document.write(_.link.gh)</script></a>]
+    <script>
+        ua_list = navigator.userAgent.match(/\((?<info>.*?)\)(\s|$)|(?<name>.*?)\/(?<version>.*?)(\s|$)/gm);
+        for (i in ua_list) {
+            ua = ua_list[i];
+            if (!ua.match(/^(Mozilla|AppleWebKit|(Mobile )?Safari|Chrome|Version|ABI|Language|\()/g)) {
+                ua_list[i] = '<strong>' + ua + '</strong>';
+            }
+        }
+        console.log(ua_list);
+        $('#define')[0].href = 'define-' + i18n + '.html';
+        addTitle(_.title.browser);
+        addItem(_.item.browser, platform.description);
+        addItem(_.item.ua + _.item.special_ua, '<br>&nbsp;&nbsp;. ' + ua_list.join('<br>&nbsp;&nbsp;. '));
+        addItem(_.item.vendor, navigator.vendor);
+        addItem(_.item.view, width + ' * ' + height);
+        addItem(_.item.lang, navigator.languages.join(', '));
+        addTitle(_.title.ip)
+        addItem(_.note.wait_response);
+        setTimeout(function () {
+            if ($('.temp').length) {
+                $('.temp').html('&nbsp;- ' + _.note.fail);
+            }
+        }, 10000);
+        $.getJSON('https://ipapi.co/json', data => {
+            addItem(_.item.ip, data.ip);
+            addItem(_.item.region, data.region ? (data.region, data.country_name) : data.country_name)
+            $('.temp').remove();
+        });
+    </script>
+</body>
+</html>
